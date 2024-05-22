@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": [
+        "swift"
+      ],
+      "name": "Debug XCAFill",
+      "program": "${workspaceFolder:XCAFill}/.build/debug/XCAFill",
+      "args": [],
+      "cwd": "${workspaceFolder:XCAFill}",
+      "preLaunchTask": "swift: Build Debug XCAFill"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": [
+        "swift"
+      ],
+      "name": "Release XCAFill",
+      "program": "${workspaceFolder:XCAFill}/.build/release/XCAFill",
+      "args": [],
+      "cwd": "${workspaceFolder:XCAFill}",
+      "preLaunchTask": "swift: Build Release XCAFill"
+    }
+  ]
+}
