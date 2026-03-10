@@ -17,7 +17,6 @@ public struct Image: Codable {
 
   public var outputName: String {
     var nameComponents = [idiom, size]
-    var name = "\(idiom)_\(size)_\(scale)"
 
     if let scale {
       nameComponents.append(scale)

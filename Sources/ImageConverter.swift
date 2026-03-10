@@ -2,18 +2,29 @@
 import CoreGraphics
 import Foundation
 import ImageIO
+import UniformTypeIdentifiers
 
-public struct ImageFileType {
-  public var uti: CFString
+public struct ImageFileType: Sendable {
+  public var uti: String
   public var fileExtension: String
+
+  public init(uti: String, fileExtension: String) {
+    self.uti = uti
+    self.fileExtension = fileExtension
+  }
+
+  public init(type: UTType, fileExtension: String) {
+    self.uti = type.identifier
+    self.fileExtension = fileExtension
+  }
 
   // This list can include anything returned by CGImageDestinationCopyTypeIdentifiers()
   // I'm including only the popular formats here
-  public static let bmp = ImageFileType(uti: kUTTypeBMP, fileExtension: "bmp")
-  public static let gif = ImageFileType(uti: kUTTypeGIF, fileExtension: "gif")
-  public static let jpg = ImageFileType(uti: kUTTypeJPEG, fileExtension: "jpg")
-  public static let png = ImageFileType(uti: kUTTypePNG, fileExtension: "png")
-  public static let tiff = ImageFileType(uti: kUTTypeTIFF, fileExtension: "tiff")
+  public static let bmp = ImageFileType(type: .bmp, fileExtension: "bmp")
+  public static let gif = ImageFileType(type: .gif, fileExtension: "gif")
+  public static let jpg = ImageFileType(type: .jpeg, fileExtension: "jpg")
+  public static let png = ImageFileType(type: .png, fileExtension: "png")
+  public static let tiff = ImageFileType(type: .tiff, fileExtension: "tiff")
 }
 
 public enum ImageConverterError: Error {
@@ -96,7 +107,7 @@ public enum ImageConverter {
 
     guard
       let imageDestination = CGImageDestinationCreateWithURL(
-        destinationURL as CFURL, fileType.uti, 1, nil)
+        destinationURL as CFURL, fileType.uti as CFString, 1, nil)
     else {
       throw ImageConverterError.imageDestinationError
     }
