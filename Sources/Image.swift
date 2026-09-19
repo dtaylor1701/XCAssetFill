@@ -14,6 +14,7 @@ public struct Image: Codable {
   public var scale: String?
   public var idiom: String
   public var platform: String?
+  public var filename: String?
 
   public var outputName: String {
     var nameComponents = [idiom, size]

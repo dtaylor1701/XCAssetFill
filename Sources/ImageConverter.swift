@@ -115,4 +115,76 @@ public enum ImageConverter {
     CGImageDestinationAddImage(imageDestination, image, nil)
     CGImageDestinationFinalize(imageDestination)
   }
+
+  public static func convertImage(
+    at sourceURL: URL,
+    to destinationURL: URL,
+    fileType: ImageFileType = .png,
+    width: Double,
+    height: Double,
+    scale: Double,
+    paddingRatio: Double,
+    cornerRatio: Double
+  ) throws {
+    guard let imageSource = CGImageSourceCreateWithURL(sourceURL as CFURL, nil),
+      let sourceImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
+    else {
+      throw ImageConverterError.imageCreationError
+    }
+
+    let targetWidth = Int(width * scale)
+    let targetHeight = Int(height * scale)
+
+    let xPadding: Int = Int(paddingRatio * Double(targetWidth))
+    let yPadding: Int = Int(paddingRatio * Double(targetHeight))
+
+    guard
+      let context = CGContext(
+        data: nil,
+        width: targetWidth,
+        height: targetHeight,
+        bitsPerComponent: 8,
+        bytesPerRow: 0,
+        space: CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+    else {
+      throw ImageConverterError.graphicsContextError
+    }
+
+    context.interpolationQuality = .high
+
+    let rect = CGRect(
+      x: CGFloat(xPadding),
+      y: CGFloat(yPadding),
+      width: CGFloat(targetWidth - (xPadding * 2)),
+      height: CGFloat(targetHeight - (yPadding * 2)))
+
+    if cornerRatio > 0 {
+      let xCorner = cornerRatio * CGFloat(targetWidth)
+      let yCorner = cornerRatio * CGFloat(targetHeight)
+      let clipPath = CGPath(
+        roundedRect: rect,
+        cornerWidth: xCorner,
+        cornerHeight: yCorner,
+        transform: nil)
+      context.addPath(clipPath)
+      context.clip()
+    }
+
+    context.draw(sourceImage, in: rect)
+
+    guard let outputImage = context.makeImage() else {
+      throw ImageConverterError.imageCreationError
+    }
+
+    guard
+      let imageDestination = CGImageDestinationCreateWithURL(
+        destinationURL as CFURL, fileType.uti as CFString, 1, nil)
+    else {
+      throw ImageConverterError.imageDestinationError
+    }
+
+    CGImageDestinationAddImage(imageDestination, outputImage, nil)
+    CGImageDestinationFinalize(imageDestination)
+  }
 }
